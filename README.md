@@ -36,7 +36,7 @@ This tool acts as a safeguard, allowing users to revert their environment after 
 * GCC compiler / Python 3.x (Depending on your stack)
 ## 📂 Repository Structure
 ```text
-📦 Your-Repo-Name
+📦 OS-Project Repository
  ┣ 📂 src               # Source code files (Core logic, CLI parsing)
  ┣ 📂 include           # Header files (.h) / Module definitions
  ┣ 📂 tests             # Unit tests and test environment setup
