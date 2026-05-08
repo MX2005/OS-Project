@@ -6,18 +6,7 @@
 
 #include "snapshot.h"
 
-#define MAX_FILES 1000
 #define MAX_PATH 128
-
-struct file_info {
-    char path[MAX_PATH];
-    uint64 size;
-    int type;
-    uint ino;
-};
-
-struct file_info files[MAX_FILES];
-int file_count = 0;
 
 
 void print_metadata(struct file_info fi) {
@@ -51,31 +40,47 @@ void scan_dir(char *path) {
         return;
     }
 
+    int out = open("snapshot_data.txt", O_CREATE | O_WRONLY);
+
+    if(out < 0){
+        printf("cannot create snapshot file\n");
+        close(fd);
+        return;
+    }
+
     struct dirent de;
+    struct stat st;
+    char newpath[MAX_PATH];
+    
     while(read(fd, &de, sizeof(de)) > 0) {
         if(de.inum == 0) continue;
 
-        char newpath[MAX_PATH];
+        
         strcpy(newpath, path);
         pathcat(newpath, "/");
         pathcat(newpath, de.name);
 
-        struct stat st;
+        
         if(stat(newpath, &st) >= 0) {
             if(strcmp(de.name, ".") == 0 || strcmp(de.name, "..") == 0) continue;
 
-            struct file_info fi;
-            strcpy(fi.path, newpath);
-            fi.size = st.size;
-            fi.type = st.type;
-            fi.ino = st.ino;
-            print_metadata(fi);
+            printf("Path: %s | Size: %lu | Type: %d | Inode: %u\n",
+               newpath,
+               (unsigned long)st.size,
+               st.type,
+               st.ino);
+
+        
+            write(out, &st, sizeof(st));
+            write(out, newpath, strlen(newpath) + 1);
             
             if(st.type == T_DIR) {
                 scan_dir(newpath);
             }
         }
     }
+
+    close(out);
     close(fd);
 }
 
