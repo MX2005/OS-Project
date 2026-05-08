@@ -28,14 +28,19 @@ This tool acts as a safeguard, allowing users to revert their environment after 
 ## 🛠️ Technologies Used
 * **Language:** *(e.g., C, C++, Python, Bash)*
 * **Libraries/Tools:** *(e.g., rsync, standard Linux POSIX APIs)*
-* *(Update this section based on your actual tech stack)*
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 * Linux Environment (or specific OS requirements)
 * GCC compiler / Python 3.x (Depending on your stack)
+## 📂 Repository Structure
+```text
+📦 Your-Repo-Name
+ ┣ 📂 src               # Source code files (Core logic, CLI parsing)
+ ┣ 📂 include           # Header files (.h) / Module definitions
+ ┣ 📂 tests             # Unit tests and test environment setup
+ ┣ 📂 docs              # Documentation and architectural diagrams
+ ┣ 📜 Makefile          # Build scripts (or requirements.txt if Python)
+ ┗ 📜 README.md         # Project documentation
 
-
-# Run the program
-./snapshot_tool --help
