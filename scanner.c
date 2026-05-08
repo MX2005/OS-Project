@@ -4,16 +4,28 @@
 #include "kernel/fs.h"
 #include "kernel/fcntl.h"
 
+#include "snapshot.h"
 
-struct file_info {
-    char path[128];
-    uint64 size;   
-    int type;      
-    uint ino;      
-};
+#define MAX_FILES 1000
+#define MAX_PATH 128
 
-struct file_info files[1000];
+
+
+struct file_info files[MAX_FILES];
 int file_count = 0;
+
+
+void print_metadata() {
+    printf("\n========== SCANNED FILES ==========\n");
+
+    printf("Path: %s | Size: %lu | Type: %d | Inode: %u\n",
+                   newpath,
+                   (unsigned long)st.size,
+                   st.type,
+                   st.ino);
+
+    printf("===================================\n");
+}
 
 
 void pathcat(char *dst, char *src) {
@@ -24,6 +36,7 @@ void pathcat(char *dst, char *src) {
     }
     dst[i] = '\0';
 }
+
 
 
 void scan_dir(char *path) {
@@ -37,7 +50,7 @@ void scan_dir(char *path) {
     while(read(fd, &de, sizeof(de)) > 0) {
         if(de.inum == 0) continue;
 
-        char newpath[128];
+        char newpath[MAX_PATH];
         strcpy(newpath, path);
         pathcat(newpath, "/");
         pathcat(newpath, de.name);
@@ -46,13 +59,7 @@ void scan_dir(char *path) {
         if(stat(newpath, &st) >= 0) {
             if(strcmp(de.name, ".") == 0 || strcmp(de.name, "..") == 0) continue;
 
-            printf("Path: %s | Size: %lu | Type: %d | Inode: %u\n",
-                   newpath,
-                   (unsigned long)st.size,
-                   st.type,
-                   st.ino);
-
-
+            print_metadata();
             
             if(st.type == T_DIR) {
                 scan_dir(newpath);
