@@ -26,28 +26,6 @@ void pathcat(char *dst, char *src) {
 }
 
 
-void save_metadata(char *path, uint64 size, int type, uint ino) {
-    printf("DEBUG: entering save_metadata with path length %d\n", strlen(path));
-
-    if(file_count >= 1000) {
-        printf("metadata array full\n");
-        return;
-    }
-
-    if(strlen(path) >= sizeof(files[file_count].path)) {
-        printf("path too long: %s\n", path);
-        return;
-    }
-
-    strcpy(files[file_count].path, path);
-    files[file_count].size = size;
-    files[file_count].type = type;
-    files[file_count].ino  = ino;
-
-    file_count++;
-}
-
-
 void scan_dir(char *path) {
     int fd = open(path, O_RDONLY);
     if(fd < 0) {
@@ -74,8 +52,6 @@ void scan_dir(char *path) {
                    st.type,
                    st.ino);
 
-            
-            save_metadata(newpath, st.size, st.type, st.ino);
 
             
             if(st.type == T_DIR) {
