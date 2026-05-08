@@ -2,74 +2,134 @@
 #include "kernel/stat.h"
 #include "kernel/fs.h"
 #include "kernel/fcntl.h"
-
 #include "user/user.h"
 
-#include "file_copy.h"
-#include "path_utils.h"
+#include "snapshot.h"
 
 #define MAX_PATH 128
+#define BUFFER_SIZE 512
 
+char buffer[BUFFER_SIZE];
+
+
+// ----------------------------------------
+// copy_file()
+// ----------------------------------------
 void
-create_snapshot(char *source_dir, char *snapshot_name)
+copy_file(char *src, char *dst)
 {
-    int fd;
+    int fd_src, fd_dst, n;
 
-    struct dirent de;
-    struct stat st;
+    fd_src = open(src, O_RDONLY);
 
-    char snapshot_dir[MAX_PATH];
-  
-    build_path(snapshot_dir, "snapshots", snapshot_name);
-
-    fd = open(source_dir, O_RDONLY);
-
-    if(fd < 0){
-        printf("ERROR: cannot open directory %s\n", source_dir);
+    if(fd_src < 0){
+        printf("ERROR: cannot open %s\n", src);
         return;
     }
 
-    while(read(fd, &de, sizeof(de)) == sizeof(de)){
+    fd_dst = open(dst, O_CREATE | O_WRONLY);
 
-        if(de.inum == 0)
-            continue;
-
-        if(strcmp(de.name, ".") == 0 || strcmp(de.name, "..") == 0)
-            continue;
-
-        char src_path[MAX_PATH];
-        char dst_path[MAX_PATH];
-
-        build_path(src_path, source_dir, de.name);
-
-        if(stat(src_path, &st) < 0)
-            continue;
-
-        // skip subdirectories for now
-        if(st.type == T_DIR)
-            continue;
-
-        build_path(dst_path, snapshot_dir, de.name);
-
-        copy_file(src_path, dst_path);
-
-        printf("Copied: %s -> %s\n", src_path, dst_path);
+    if(fd_dst < 0){
+        printf("ERROR: cannot create %s\n", dst);
+        close(fd_src);
+        return;
     }
 
-    close(fd);
+    while((n = read(fd_src, buffer, sizeof(buffer))) > 0){
+        write(fd_dst, buffer, n);
+    }
+
+    close(fd_src);
+    close(fd_dst);
 }
 
+
+// ----------------------------------------
+// get_filename()
+// ----------------------------------------
+char*
+get_filename(char *path)
+{
+    char *p = path + strlen(path);
+
+    while(p >= path && *p != '/')
+        p--;
+
+    return p + 1;
+}
+
+
+// ----------------------------------------
+// ensure_snapshot_dir()
+// ----------------------------------------
+void
+ensure_snapshot_dir(char *snapshot_name)
+{
+    mkdir("snapshots");
+
+    char full[128];
+    strcpy(full, "snapshots/");
+    strcpy(full + strlen(full), snapshot_name);
+
+    mkdir(full);
+}
+
+
+// ----------------------------------------
+// create_snapshot()
+// THIS IS THE MAIN PART 2 LOGIC
+// ----------------------------------------
+void
+create_snapshot(char *snapshot_name)
+{
+    if(file_count == 0){
+        printf("No scanned files found. Run scanner first.\n");
+        return;
+    }
+
+    ensure_snapshot_dir(snapshot_name);
+
+    char base[128];
+    strcpy(base, "snapshots/");
+    strcpy(base + strlen(base), snapshot_name);
+
+    printf("Starting snapshot creation...\n");
+
+    for(int i = 0; i < file_count; i++){
+
+        // skip directories
+        if(files[i].type == T_DIR)
+            continue;
+
+        char dst[128];
+
+        strcpy(dst, base);
+        strcpy(dst + strlen(dst), "/");
+        strcpy(dst + strlen(dst), get_filename(files[i].path));
+
+        copy_file(files[i].path, dst);
+
+        printf("Copied: %s -> %s\n",
+               files[i].path,
+               dst);
+    }
+
+    printf("Snapshot created successfully: %s\n", snapshot_name);
+}
+
+
+// ----------------------------------------
+// main()
+// ----------------------------------------
 int
 main(int argc, char *argv[])
 {
-    if(argc < 3){
-        printf("Usage: snapshot_creator <source_dir> <snapshot_name>\n");
+    if(argc < 2){
+        printf("Usage: snapshot_creator <snapshot_name>\n");
         exit(1);
     }
 
-    create_snapshot(argv[1], argv[2]);
-
-    printf("Snapshot completed successfully.\n");
+    create_snapshot(argv[1]);
 
     exit(0);
 }
