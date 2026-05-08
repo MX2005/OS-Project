@@ -8,20 +8,6 @@
 
 #define MAX_PATH 128
 
-
-void print_metadata(struct file_info fi) {
-    printf("\n========== SCANNED FILES ==========\n");
-
-    printf("Path: %s | Size: %lu | Type: %d | Inode: %u\n",
-                   newpath,
-                   (unsigned long)st.size,
-                   st.type,
-                   st.ino);
-
-    printf("===================================\n");
-}
-
-
 void pathcat(char *dst, char *src) {
     int i = strlen(dst);
     int j = 0;
