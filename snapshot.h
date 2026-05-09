@@ -11,7 +11,7 @@ struct file_info {
     uint ino;
 };
 
-extern struct file_info files[MAX_FILES];
-extern int file_count;
+struct file_info files[MAX_FILES];
+int file_count = 0;
 
 #endif
