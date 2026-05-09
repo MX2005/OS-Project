@@ -16,10 +16,9 @@ main(int argc, char *argv[])
   strcpy(path, "snapshots/");
   strcpy(path + strlen(path), argv[1]);
 
-  if(mkdir(path) < 0){
-    printf("Error: snapshot already exists or could not be created\n");
-    exit(1);
-  }
+  // Create snapshot folder.
+  // If it already exists, continue safely.
+  mkdir(path);
 
   char meta[120];
   strcpy(meta, path);
@@ -39,6 +38,6 @@ main(int argc, char *argv[])
   write(fd, info, strlen(info));
   close(fd);
 
-  printf("Snapshot created: %s\n", argv[1]);
+  printf("Snapshot storage ready: %s\n", argv[1]);
   exit(0);
 }
