@@ -1,8 +1,8 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "kernel/fs.h"
-#include "user/user.h"
 #include "kernel/fcntl.h"
+#include "user/user.h"
 
 char*
 fmtname(char *path)
@@ -10,7 +10,7 @@ fmtname(char *path)
   static char buf[DIRSIZ+1];
   char *p;
 
-  for(p=path+strlen(path); p >= path && *p != '/'; p--)
+  for(p = path + strlen(path); p >= path && *p != '/'; p--)
     ;
   p++;
 
