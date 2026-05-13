@@ -1,26 +1,33 @@
 #ifndef CHANGE_DETECTION_H
 #define CHANGE_DETECTION_H
 
-#include <stddef.h>
-#include <stdio.h>
-
 /*
  * Part 4: Change Detection / Comparison Engine
  *
- * Expected metadata line format:
+ * xv6-friendly public interface:
+ * - no stdio.h
+ * - no FILE *
+ * - no malloc-facing API
+ *
+ * Supported metadata line format, when a real metadata file exists:
  *   path|size|mtime|permissions|sha256
  *
- * Minimum supported format:
+ * Minimum supported metadata format:
  *   path|size|mtime
  *
- * permissions and sha256 are optional. Blank lines and lines starting with '#'
- * are ignored.
+ * permissions and sha256 are optional. If the snapshot manager creates only a
+ * status-style snapshot.meta, compare_snapshot_paths() can compare the files
+ * inside the snapshot directories directly.
  */
 
+#define CHANGE_DETECTION_MAX_FILES 1000
+#define CHANGE_DETECTION_MAX_PATH 128
+#define CHANGE_DETECTION_HASH_SIZE 65
+
 typedef struct {
-    size_t added;
-    size_t deleted;
-    size_t modified;
+    int added;
+    int deleted;
+    int modified;
 } ChangeSummary;
 
 typedef enum {
@@ -28,27 +35,22 @@ typedef enum {
     CHANGE_DETECTION_INVALID_ARGUMENT = 1,
     CHANGE_DETECTION_IO_ERROR = 2,
     CHANGE_DETECTION_PARSE_ERROR = 3,
-    CHANGE_DETECTION_MEMORY_ERROR = 4
+    CHANGE_DETECTION_TOO_MANY_FILES = 4,
+    CHANGE_DETECTION_PATH_TOO_LONG = 5
 } ChangeDetectionStatus;
 
-/*
- * Compare two snapshot metadata files.
- *
- * old_meta_path: metadata file from the older snapshot
- * new_meta_path: metadata file from the newer/current snapshot
- * output: where to print "Added:", "Deleted:", and "Modified:" lines.
- *         Pass NULL if you only want the summary counts.
- * summary: optional output counts. Pass NULL if counts are not needed.
- *
- * Returns CHANGE_DETECTION_OK on success, otherwise an error status.
- */
 ChangeDetectionStatus compare_snapshot_metadata(
-    const char *old_meta_path,
-    const char *new_meta_path,
-    FILE *output,
+    char *old_meta_path,
+    char *new_meta_path,
     ChangeSummary *summary
 );
 
-const char *change_detection_last_error(void);
+ChangeDetectionStatus compare_snapshot_paths(
+    char *old_snapshot_path,
+    char *new_snapshot_path,
+    ChangeSummary *summary
+);
+
+char *change_detection_last_error(void);
 
 #endif
