@@ -1,6 +1,6 @@
 # 🗂️ XV6 File System — Snapshot & Restore Lab
 
-> **Course Lab | Operating Systems | Section 5B**
+> **Course Lab | Operating Systems | Section 5B** **DR Wael Abd Elrahman Ismail** 
 > Implementing snapshot creation, change detection, and directory restore on a custom xv6 RISC-V kernel.
 
 ---
