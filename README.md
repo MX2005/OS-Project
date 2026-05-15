@@ -85,6 +85,8 @@ $ echo NEW >> dir/a.txt
 $ rm dir/b.txt
 $ echo C > dir/c.txt
 
+$ scanner dir
+
 # Take second snapshot
 $ snapshot snap2
 === Snapshot Creation Started ===
