@@ -120,12 +120,12 @@ restore: === done ===
 
 ## 🌲 Bonus: Snapshot Tree Visualizer
 
-The `snapshot_tree` command renders the full contents of any snapshot as a human-readable directory tree, making it easy to inspect what was captured at a glance.
+The `snap_tree` command renders the full contents of any snapshot as a human-readable directory tree, making it easy to inspect what was captured at a glance.
 
 ### Usage
 
 ```bash
-$ snapshot_tree snapshots/snap1
+$ snaptree snapshots/snap1
 ```
 
 ### Expected Output
@@ -143,6 +143,8 @@ This is especially useful when snapshots contain nested subdirectories, allowing
 ---
 
 ## 🔍 Enhanced Snapshot Metadata
+
+$ cat snapshots/snap1/snapshot.meta 
 
 Each snapshot directory contains a `snapshot.meta` file. In addition to the standard fields, the metadata now includes the **total size** of all files captured in the snapshot:
 
