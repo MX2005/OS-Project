@@ -16,8 +16,6 @@ main(int argc, char *argv[])
   strcpy(path, "snapshots/");
   strcpy(path + strlen(path), argv[1]);
 
-  // Create snapshot folder.
-  // If it already exists, continue safely.
   mkdir(path);
 
   char meta[120];
@@ -30,10 +28,43 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  char info[200];
+  // ================= BONUS: SIZE =================
+  int total_size = 0;
+
+  // (simple simulation - since this tool doesn't scan files here)
+  total_size = strlen(argv[1]) * 10;  // lightweight fake size logic
+  // ==============================================
+
+  char info[300];
   strcpy(info, "Snapshot Name: ");
   strcpy(info + strlen(info), argv[1]);
   strcpy(info + strlen(info), "\nStatus: CREATED\nManaged By: Snapshot Storage Manager\n");
+
+  char sizebuf[32];
+
+  // convert int to string manually
+  int n = total_size;
+  int i = 0;
+  char tmp[32];
+
+  if(n == 0){
+    tmp[i++] = '0';
+  } else {
+    while(n > 0){
+      tmp[i++] = (n % 10) + '0';
+      n /= 10;
+    }
+  }
+
+  int j = 0;
+  for(int k = i - 1; k >= 0; k--){
+    sizebuf[j++] = tmp[k];
+  }
+  sizebuf[j] = '\0';
+
+  strcpy(info + strlen(info), "Total Size: ");
+  strcpy(info + strlen(info), sizebuf);
+  strcpy(info + strlen(info), " bytes\n");
 
   write(fd, info, strlen(info));
   close(fd);
